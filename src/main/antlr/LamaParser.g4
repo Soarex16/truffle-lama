@@ -84,7 +84,8 @@ primary
     | L_IDENT                                                                               #identifier
     | OPEN_PARENS scopeExpression CLOSE_PARENS                                              #scope
     | SKIP_                                                                                 #skip
-    | ifThenElse                                                                            #conditional
+    | FUN OPEN_PARENS args=functionArguments CLOSE_PARENS body=functionBody                 #functionExpression
+    | ifThenElse                                                                            #conditionalExpression
     | caseWhen                                                                              #caseExpression
     | WHILE expression DO scopeExpression OD                                                #whileLoop
     | DO scopeExpression WHILE expression OD                                                #doWhileLoop
