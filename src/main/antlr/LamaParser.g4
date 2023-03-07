@@ -114,21 +114,21 @@ caseBranch
     ;
 
 pattern
-    : OPEN_PARENS pattern CLOSE_PARENS
-    | alias=L_IDENT (AT pattern)?
-    | sExpPattern
-    | arrayPattern
-    | numberLiteral
-    | booleanLiteral
-    | STRING_LITERAL
-    | CHARACTER_LITERAL
-    | PAT_BOX
-    | PAT_VAL
-    | PAT_STR
-    | PAT_ARRAY
-    | PAT_SEXP
-    | PAT_FUN
-    | WILDCARD
+    : OPEN_PARENS pattern CLOSE_PARENS  #parens
+    | alias=L_IDENT (AT pattern)?       #aliasedPattern
+    | sExpPattern                       #sExpPat
+    | arrayPattern                      #arrayPat
+    | numberLiteral                     #numberPat
+    | booleanLiteral                    #booleanPat
+    | STRING_LITERAL                    #stringPat
+    | CHARACTER_LITERAL                 #charPat
+    | PAT_BOX                           #boxTypePat
+    | PAT_VAL                           #valTypePat
+    | PAT_STR                           #strTypePat
+    | PAT_ARRAY                         #arrayTypePat
+    | PAT_SEXP                          #sExpTypePat
+    | PAT_FUN                           #funTypePat
+    | WILDCARD                          #wildcard
     ;
 
 sExpPattern
