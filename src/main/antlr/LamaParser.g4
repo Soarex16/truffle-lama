@@ -1,7 +1,7 @@
 parser grammar LamaParser;
 
 @header {
-    package com.soarex.truffle.lama.parser;
+package com.soarex.truffle.lama.parser;
 }
 
 options {
@@ -9,93 +9,141 @@ options {
 }
 
 program
-    : scope_expression EOF
+    : scopeExpression EOF
     ;
 
-scope_expression
+scopeExpression
     : defs=definition* expr=expression?
     ;
 
 definition
-    : variable_definition
-    | function_definition
+    : variableDefinition
+    | functionDefinition
     ;
 
-variable_definition
-    : VAR variable_definition_sequence SEMICOLON
+variableDefinition
+    : VAR variableDefinitionSequence SEMICOLON
     ;
 
-variable_definition_sequence
-    : defs=variable_definition_item (COMMA defs=variable_definition_item)*
+variableDefinitionSequence
+    : defs=variableDefinitionItem (COMMA defs=variableDefinitionItem)*
     ;
 
-variable_definition_item
-    : name=L_IDENT (DEF_ASSIGN value=basic_expression)?
+variableDefinitionItem
+    : name=L_IDENT (DEF_ASSIGN value=basicExpression)?
     ;
 
-function_definition
-    : FUN name=L_IDENT OPEN_PARENS args=function_arguments CLOSE_PARENS body=function_body
+functionDefinition
+    : FUN name=L_IDENT OPEN_PARENS args=functionArguments CLOSE_PARENS body=functionBody
     ;
 
-function_arguments
+functionArguments
     : (args=L_IDENT (COMMA args=L_IDENT)*)?
     ;
 
-function_body
-    : OPEN_BRACE scope_expression CLOSE_BRACE
+functionBody
+    : OPEN_BRACE scopeExpression CLOSE_BRACE
     ;
 
 expression
-    : (basic_expression SEMICOLON)* basic_expression
+    : (basicExpression SEMICOLON)* basicExpression
     ;
 
-basic_expression
-    : assoc_expression
-    | comparison_expression
+basicExpression
+    : assocExpression
+    | comparisonExpression
     ;
 
-assoc_expression
-    : postfix_expression
-    | <assoc=right> lhs=assoc_expression operator=ASSIGN rhs=assoc_expression
-    | <assoc=left> lhs=assoc_expression operator=OP_OR rhs=assoc_expression
-    | <assoc=left> lhs=assoc_expression operator=OP_AND rhs=assoc_expression
+assocExpression
+    : postfixExpression
+    | <assoc=right> lhs=assocExpression operator=ASSIGN rhs=assocExpression
+    | <assoc=left>  lhs=assocExpression operator=OP_OR rhs=assocExpression
+    | <assoc=left>  lhs=assocExpression operator=OP_AND rhs=assocExpression
     // by precedence here was comparison
-    | <assoc=left> lhs=assoc_expression operator=(PLUS | MINUS) rhs=assoc_expression
-    | <assoc=left> lhs=assoc_expression operator=(MUL | DIV | MOD) rhs=assoc_expression
+    | <assoc=left>  lhs=assocExpression operator=(PLUS | MINUS) rhs=assocExpression
+    | <assoc=left>  lhs=assocExpression operator=(MUL | DIV | MOD) rhs=assocExpression
     ;
 
-comparison_expression
-    : lhs=assoc_expression operator=(OP_LT | OP_GT | OP_LE | OP_GE | OP_EQ | OP_NE) rhs=assoc_expression
+comparisonExpression
+    : lhs=assocExpression operator=(OP_LT | OP_GT | OP_LE | OP_GE | OP_EQ | OP_NE) rhs=assocExpression
     ;
 
-postfix_expression
-    : primary                                                                                   #empty_suffix
-    | postfix_expression OPEN_PARENS (args=expression (COMMA args=expression)*)? CLOSE_PARENS   #index_expression
-    | postfix_expression OPEN_BRACKET index=expression CLOSE_BRACKET                            #call_expression
+postfixExpression
+    : primary                                                                                       #emptySuffix
+    | base=postfixExpression OPEN_PARENS (args=expression (COMMA args=expression)*)? CLOSE_PARENS   #indexExpression
+    | base=postfixExpression OPEN_BRACKET index=expression CLOSE_BRACKET                            #callExpression
     ;
 
 primary
-    : NUMBER_LITERAL                                                                            #number_literal
-    | MINUS NUMBER_LITERAL                                                                      #negative_number_literal
-    | STRING_LITERAL                                                                            #string_literal
-    | CHARACTER_LITERAL                                                                         #character_literal
-    | OPEN_BRACKET (items=expression (COMMA items=expression)*)? CLOSE_BRACKET                  #array_literal
-    | name=U_IDENT (OPEN_PARENS (items=expression (COMMA items=expression)*)? CLOSE_PARENS)?    #s_exp
-    | L_IDENT                                                                                   #identifier
-    | OPEN_PARENS scope_expression CLOSE_PARENS                                                 #scope
-    | SKIP_                                                                                     #skip
-    | if_then_else                                                                              #conditional
-    | WHILE expression DO scope_expression OD                                                   #while_loop
-    | DO scope_expression WHILE expression OD                                                   #do_while_loop
-    | FOR scope_expression COMMA expression COMMA expression DO scope_expression OD             #for_loop
-    // TODO: case of
+    : numberLiteral                                                                         #numberLiteralExpression
+    | booleanLiteral                                                                        #booleanLiteralExpression
+    | STRING_LITERAL                                                                        #stringLiteral
+    | CHARACTER_LITERAL                                                                     #characterLiteral
+    | OPEN_BRACKET (items=expression (COMMA items=expression)*)? CLOSE_BRACKET              #arrayLiteral
+    | tag=U_IDENT (OPEN_PARENS (items=expression (COMMA items=expression)*)? CLOSE_PARENS)? #sExp
+    | L_IDENT                                                                               #identifier
+    | OPEN_PARENS scopeExpression CLOSE_PARENS                                              #scope
+    | SKIP_                                                                                 #skip
+    | ifThenElse                                                                            #conditional
+    | caseWhen                                                                              #caseExpression
+    | WHILE expression DO scopeExpression OD                                                #whileLoop
+    | DO scopeExpression WHILE expression OD                                                #doWhileLoop
+    | FOR scopeExpression COMMA expression COMMA expression DO scopeExpression OD           #forLoop
     ;
 
-if_then_else
-    : IF expression THEN scope_expression else_part? FI
+numberLiteral
+    : NUMBER_LITERAL        #positive
+    | MINUS NUMBER_LITERAL  #negative
     ;
 
-else_part
-    : ELIF expression THEN scope_expression else_part?
-    | ELSE scope_expression
+booleanLiteral
+    : TRUE  #true
+    | FALSE #false
+    ;
+
+caseWhen
+    : CASE expression OF caseBranches ESAC
+    ;
+
+caseBranches
+    : branches=caseBranch (BRANCH_SEP branches=caseBranch)*
+    ;
+
+caseBranch
+    : pattern ARROW scopeExpression
+    ;
+
+pattern
+    : OPEN_PARENS pattern CLOSE_PARENS
+    | alias=L_IDENT (AT pattern)?
+    | sExpPattern
+    | arrayPattern
+    | numberLiteral
+    | booleanLiteral
+    | STRING_LITERAL
+    | CHARACTER_LITERAL
+    | PAT_BOX
+    | PAT_VAL
+    | PAT_STR
+    | PAT_ARRAY
+    | PAT_SEXP
+    | PAT_FUN
+    | WILDCARD
+    ;
+
+sExpPattern
+    : tag=U_IDENT (OPEN_PARENS items=pattern (COMMA items=pattern)* CLOSE_PARENS)?
+    ;
+
+arrayPattern
+    : (OPEN_BRACKET items=pattern (COMMA items=pattern)* OPEN_BRACKET)?
+    ;
+
+ifThenElse
+    : IF expression THEN scopeExpression elsePart? FI
+    ;
+
+elsePart
+    : ELIF expression THEN scopeExpression elsePart?
+    | ELSE scopeExpression
     ;

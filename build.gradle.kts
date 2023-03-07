@@ -15,7 +15,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
 
-    antlr("org.antlr:antlr4:9.2")
+    antlr("org.antlr:antlr4:4.12.0")
 }
 
 tasks.test {
@@ -28,6 +28,8 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.generateGrammarSource {
+    val grammarOutputDir = "gen/main/com/soarex/truffle/lama/parser"
+    outputDirectory = File("${project.rootDir}/$grammarOutputDir")
     maxHeapSize = "64m"
-    arguments = arguments + listOf("-visitor", "-long-messages")
+    arguments = arguments + listOf("-no-listener", "-visitor", "-long-messages")
 }

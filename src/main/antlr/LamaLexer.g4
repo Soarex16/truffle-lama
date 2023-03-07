@@ -55,6 +55,8 @@ FUN:                        'fun';
 CASE:                       'case';
 OF:                         'of';
 ESAC:                       'esac';
+TRUE:                       'true';
+FALSE:                      'false';
 
 // Literals
 NUMBER_LITERAL:             [0-9]+;
@@ -68,6 +70,18 @@ U_IDENT:                    [A-Z] IDENT_CHARACTER*;
 // Comments
 LINE_COMMENT:               '--' INPUT_CHARACTER* -> channel(COMMENTS);
 BLOCK_COMMENT :             '(*' (BLOCK_COMMENT|.)*? '*)' -> channel(COMMENTS) ;
+
+// Pattern matching
+AT:                         '@';
+BRANCH_SEP:                 '|';
+ARROW:                      '->';
+PAT_BOX:                    '#box';
+PAT_VAL:                    '#val';
+PAT_STR:                    '#str';
+PAT_ARRAY:                  '#array';
+PAT_SEXP:                   '#sexp';
+PAT_FUN:                    '#fun';
+WILDCARD:                   '_';
 
 WHITESPACES: [ \t\r\n\u000C]+ -> channel(WSCHANNEL);
 
