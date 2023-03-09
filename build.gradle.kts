@@ -13,9 +13,16 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
+    val graalvmVersion: String by project
+    annotationProcessor("org.graalvm.truffle", "truffle-dsl-processor", graalvmVersion)
+    implementation("org.graalvm.sdk", "graal-sdk", graalvmVersion)
+    implementation("org.graalvm.truffle", "truffle-api", graalvmVersion)
+    implementation("org.graalvm.truffle", "truffle-dsl-processor", graalvmVersion)
 
     antlr("org.antlr:antlr4:4.12.0")
+
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 tasks.test {
