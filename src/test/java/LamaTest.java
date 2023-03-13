@@ -1,3 +1,6 @@
+import com.soarex.truffle.lama.nodes.LamaNumberLiteralNode;
+import com.soarex.truffle.lama.nodes.LamaRootNode;
+import com.soarex.truffle.lama.nodes.expr.arithmetics.LamaAddNodeGen;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.jupiter.api.*;
@@ -20,6 +23,20 @@ public class LamaTest {
     @Test
     void simpleTest() {
         Value result = context.eval("lama", "1 + 2");
-        assertEquals(3.0, result.asDouble(), 0.0);
+        assertEquals(3, result.asInt());
+    }
+
+    @Test
+    void addTest() {
+        var expr = LamaAddNodeGen.create(
+                new LamaNumberLiteralNode(1),
+                new LamaNumberLiteralNode(2)
+        );
+        var root = new LamaRootNode(expr);
+        var callTarget = root.getCallTarget();
+
+        var result = callTarget.call();
+
+        assertEquals(3, result);
     }
 }

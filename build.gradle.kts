@@ -30,8 +30,6 @@ java {
 }
 
 tasks.generateGrammarSource {
-    val grammarOutputDir = "gen/main/com/soarex/truffle/lama/parser"
-    outputDirectory = File("${project.rootDir}/$grammarOutputDir")
     maxHeapSize = "64m"
     arguments = arguments + listOf("-no-listener", "-visitor", "-long-messages")
 }

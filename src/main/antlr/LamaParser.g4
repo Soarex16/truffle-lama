@@ -93,8 +93,8 @@ primary
     ;
 
 numberLiteral
-    : NUMBER_LITERAL        #positive
-    | MINUS NUMBER_LITERAL  #negative
+    : num=NUMBER_LITERAL        #positive
+    | MINUS num=NUMBER_LITERAL  #negative
     ;
 
 booleanLiteral
