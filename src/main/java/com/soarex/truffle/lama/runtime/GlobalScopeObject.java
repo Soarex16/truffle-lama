@@ -6,9 +6,8 @@ import java.util.Map;
 public final class GlobalScopeObject {
     private final Map<String, Object> variables = new HashMap<>();
 
-    public boolean newVariable(String name, Object value) {
-        Object existingValue = this.variables.putIfAbsent(name, value);
-        return existingValue == null;
+    public void newVariable(String name) {
+        this.variables.putIfAbsent(name, LamaNull.INSTANCE);
     }
 
     public boolean updateVariable(String name, Object value) {

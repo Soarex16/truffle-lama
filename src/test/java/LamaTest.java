@@ -58,4 +58,15 @@ public class LamaTest {
         Value result = context.eval("lama", "\"foo\"");
         assertEquals(result.asString(), "foo");
     }
+
+    @Test
+    void definitions() {
+        Value result = context.eval("lama",
+                """
+                        var a = 1, b = 2;
+                        var c = 3, d = 4;
+                        a + b + c + d
+                        """);
+        assertEquals(result.asInt(), 1 + 2 + 3 + 4);
+    }
 }

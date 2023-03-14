@@ -4,6 +4,7 @@ import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.soarex.truffle.lama.LamaLanguageContext;
 import com.soarex.truffle.lama.LamaTypeSystem;
 import com.soarex.truffle.lama.LamaTypeSystemGen;
 
@@ -15,4 +16,8 @@ public abstract class LamaNode extends Node {
     }
 
     public abstract Object executeGeneric(VirtualFrame frame);
+
+    protected final LamaLanguageContext currentLanguageContext() {
+        return LamaLanguageContext.get(this);
+    }
 }

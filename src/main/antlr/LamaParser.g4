@@ -13,7 +13,7 @@ program
     ;
 
 scopeExpression
-    : defs=definition* expr=expression?
+    : defs+=definition* expr=expression?
     ;
 
 definition
@@ -26,7 +26,7 @@ variableDefinition
     ;
 
 variableDefinitionSequence
-    : defs=variableDefinitionItem (COMMA defs=variableDefinitionItem)*
+    : defs+=variableDefinitionItem (COMMA defs+=variableDefinitionItem)*
     ;
 
 variableDefinitionItem
@@ -38,7 +38,7 @@ functionDefinition
     ;
 
 functionArguments
-    : (args=L_IDENT (COMMA args=L_IDENT)*)?
+    : (args+=L_IDENT (COMMA args+=L_IDENT)*)?
     ;
 
 functionBody
@@ -76,21 +76,21 @@ postfixExpression
     ;
 
 primary
-    : numberLiteral                                                                         #numberLiteralExpression
-    | booleanLiteral                                                                        #booleanLiteralExpression
-    | STRING_LITERAL                                                                        #stringLiteral
-    | CHARACTER_LITERAL                                                                     #characterLiteral
-    | OPEN_BRACKET (items=expression (COMMA items=expression)*)? CLOSE_BRACKET              #arrayLiteral
-    | tag=U_IDENT (OPEN_PARENS (items=expression (COMMA items=expression)*)? CLOSE_PARENS)? #sExp
-    | L_IDENT                                                                               #identifier
-    | OPEN_PARENS scopeExpression CLOSE_PARENS                                              #scope
-    | SKIP_                                                                                 #skip
-    | FUN OPEN_PARENS args=functionArguments CLOSE_PARENS body=functionBody                 #functionExpression
-    | ifThenElse                                                                            #conditionalExpression
-    | caseWhen                                                                              #caseExpression
-    | WHILE expression DO scopeExpression OD                                                #whileLoop
-    | DO scopeExpression WHILE expression OD                                                #doWhileLoop
-    | FOR scopeExpression COMMA expression COMMA expression DO scopeExpression OD           #forLoop
+    : numberLiteral                                                                             #numberLiteralExpression
+    | booleanLiteral                                                                            #booleanLiteralExpression
+    | STRING_LITERAL                                                                            #stringLiteral
+    | CHARACTER_LITERAL                                                                         #characterLiteral
+    | OPEN_BRACKET (items+=expression (COMMA items+=expression)*)? CLOSE_BRACKET                #arrayLiteral
+    | tag=U_IDENT (OPEN_PARENS (items+=expression (COMMA items+=expression)*)? CLOSE_PARENS)?   #sExp
+    | L_IDENT                                                                                   #identifier
+    | OPEN_PARENS scopeExpression CLOSE_PARENS                                                  #scope
+    | SKIP_                                                                                     #skip
+    | FUN OPEN_PARENS args=functionArguments CLOSE_PARENS body=functionBody                     #functionExpression
+    | ifThenElse                                                                                #conditionalExpression
+    | caseWhen                                                                                  #caseExpression
+    | WHILE expression DO scopeExpression OD                                                    #whileLoop
+    | DO scopeExpression WHILE expression OD                                                    #doWhileLoop
+    | FOR scopeExpression COMMA expression COMMA expression DO scopeExpression OD               #forLoop
     ;
 
 numberLiteral
@@ -108,7 +108,7 @@ caseWhen
     ;
 
 caseBranches
-    : branches=caseBranch (BRANCH_SEP branches=caseBranch)*
+    : branches+=caseBranch (BRANCH_SEP branches+=caseBranch)*
     ;
 
 caseBranch
@@ -134,11 +134,11 @@ pattern
     ;
 
 sExpPattern
-    : tag=U_IDENT (OPEN_PARENS items=pattern (COMMA items=pattern)* CLOSE_PARENS)?
+    : tag=U_IDENT (OPEN_PARENS items+=pattern (COMMA items+=pattern)* CLOSE_PARENS)?
     ;
 
 arrayPattern
-    : (OPEN_BRACKET items=pattern (COMMA items=pattern)* OPEN_BRACKET)?
+    : (OPEN_BRACKET items+=pattern (COMMA items+=pattern)* OPEN_BRACKET)?
     ;
 
 ifThenElse
