@@ -21,22 +21,38 @@ public class LamaTest {
     }
 
     @Test
-    void simpleTest() {
+    void simpleArithmeticsTest() {
         Value result = context.eval("lama", "1 + 2");
         assertEquals(3, result.asInt());
     }
 
     @Test
-    void addTest() {
-        var expr = LamaAddNodeGen.create(
-                new LamaNumberLiteralNode(1),
-                new LamaNumberLiteralNode(2)
-        );
-        var root = new LamaRootNode(expr);
-        var callTarget = root.getCallTarget();
+    void simpleBooleanOperatorsTest_or() {
+        Value result1 = context.eval("lama", "0 !! 0");
+        assertFalse(result1.asBoolean());
 
-        var result = callTarget.call();
+        Value result2 = context.eval("lama", "3 !! 0");
+        assertTrue(result2.asBoolean());
 
-        assertEquals(3, result);
+        Value result3 = context.eval("lama", "0 !! 1");
+        assertTrue(result3.asBoolean());
+    }
+
+    @Test
+    void simpleBooleanOperatorsTest_and() {
+        Value result1 = context.eval("lama", "0 && 1");
+        assertFalse(result1.asBoolean());
+
+        Value result2 = context.eval("lama", "3 && 1");
+        assertTrue(result2.asBoolean());
+    }
+
+    @Test
+    void simpleBooleanOperatorsTest_literals() {
+        Value result1 = context.eval("lama", "true && true");
+        assertTrue(result1.asBoolean());
+
+        Value result2 = context.eval("lama", "false && 1");
+        assertFalse(result2.asBoolean());
     }
 }

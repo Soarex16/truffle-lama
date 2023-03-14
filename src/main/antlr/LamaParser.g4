@@ -55,13 +55,13 @@ basicExpression
     ;
 
 assocExpression
-    : postfixExpression
-    | <assoc=right> lhs=assocExpression operator=ASSIGN rhs=assocExpression
-    | <assoc=left>  lhs=assocExpression operator=OP_OR rhs=assocExpression
-    | <assoc=left>  lhs=assocExpression operator=OP_AND rhs=assocExpression
+    : postfixExpression                                                                 #atom
+    | <assoc=right> lhs=assocExpression operator=ASSIGN rhs=assocExpression             #binaryExpression
+    | <assoc=left>  lhs=assocExpression operator=OP_OR rhs=assocExpression              #binaryExpression
+    | <assoc=left>  lhs=assocExpression operator=OP_AND rhs=assocExpression             #binaryExpression
     // by precedence here was comparison
-    | <assoc=left>  lhs=assocExpression operator=(PLUS | MINUS) rhs=assocExpression
-    | <assoc=left>  lhs=assocExpression operator=(MUL | DIV | MOD) rhs=assocExpression
+    | <assoc=left>  lhs=assocExpression operator=(PLUS | MINUS) rhs=assocExpression     #binaryExpression
+    | <assoc=left>  lhs=assocExpression operator=(MUL | DIV | MOD) rhs=assocExpression  #binaryExpression
     ;
 
 comparisonExpression

@@ -2,6 +2,8 @@ package com.soarex.truffle.lama;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
+import com.soarex.truffle.lama.nodes.LamaRootNode;
+import com.soarex.truffle.lama.parser.LamaTruffleParser;
 
 @TruffleLanguage.Registration(
     id = LamaLanguage.ID,
@@ -16,7 +18,9 @@ public class LamaLanguage extends TruffleLanguage<Void> {
 
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
-        return null;
+        var code = request.getSource().getReader();
+        var root = new LamaRootNode(this, LamaTruffleParser.parse(code));
+        return root.getCallTarget();
     }
 
     @Override

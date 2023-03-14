@@ -11,8 +11,8 @@ public final class LamaRootNode extends RootNode {
     @Child
     private LamaNode root;
 
-    public LamaRootNode(LamaNode root) {
-        super(null);
+    public LamaRootNode(TruffleLanguage<?> language, LamaNode root) {
+        super(language);
         this.root = root;
     }
 
