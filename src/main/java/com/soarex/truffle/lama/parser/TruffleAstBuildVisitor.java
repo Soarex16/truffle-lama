@@ -1,8 +1,11 @@
 package com.soarex.truffle.lama.parser;
 
+import com.oracle.truffle.api.strings.TruffleString;
+import com.soarex.truffle.lama.LamaLanguage;
 import com.soarex.truffle.lama.nodes.LamaBooleanLiteralNode;
 import com.soarex.truffle.lama.nodes.LamaNode;
 import com.soarex.truffle.lama.nodes.LamaNumberLiteralNode;
+import com.soarex.truffle.lama.nodes.LamaStringLiteralNode;
 import com.soarex.truffle.lama.nodes.expr.arithmetics.*;
 import com.soarex.truffle.lama.parser.LamaLexer;
 import com.soarex.truffle.lama.parser.LamaParser;
@@ -33,6 +36,33 @@ import org.antlr.v4.runtime.tree.ParseTree;
         };
     }
 
+    @Override
+    public LamaNode visitUnaryExpression(LamaParser.UnaryExpressionContext ctx) {
+        var inner = this.visit(ctx.expr);
+
+        return switch (ctx.operator.getType()) {
+            case LamaLexer.OP_NOT -> LamaNotNodeGen.create(inner);
+            default -> throw new IllegalStateException("Unexpected value: " + ctx.operator);
+        };
+    }
+
+    @Override
+    public LamaNode visitSkip(LamaParser.SkipContext ctx) {
+        return new LamaSkipNode();
+    }
+
+    // String literal
+    @Override
+    public LamaNode visitStringLiteral(LamaParser.StringLiteralContext ctx) {
+        var text = removeQuotes(ctx.STRING_LITERAL().getText());
+        var truffleString = TruffleString.fromJavaStringUncached(text, LamaLanguage.STRING_ENCODING);
+        return new LamaStringLiteralNode(truffleString);
+    }
+
+    private String removeQuotes(String text) {
+        return text.substring(1, text.length() - 1);
+    }
+
     // Number literals
     @Override
     public LamaNode visitPositive(LamaParser.PositiveContext ctx) {
@@ -46,6 +76,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
         return new LamaNumberLiteralNode(num);
     }
 
+    // Boolean literals
     @Override
     public LamaNode visitTrue(LamaParser.TrueContext ctx) {
         return new LamaBooleanLiteralNode(true);

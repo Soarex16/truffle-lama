@@ -1,6 +1,3 @@
-import com.soarex.truffle.lama.nodes.LamaNumberLiteralNode;
-import com.soarex.truffle.lama.nodes.LamaRootNode;
-import com.soarex.truffle.lama.nodes.expr.arithmetics.LamaAddNodeGen;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.jupiter.api.*;
@@ -54,5 +51,11 @@ public class LamaTest {
 
         Value result2 = context.eval("lama", "false && 1");
         assertFalse(result2.asBoolean());
+    }
+
+    @Test
+    void stringLiterals() {
+        Value result = context.eval("lama", "\"foo\"");
+        assertEquals(result.asString(), "foo");
     }
 }

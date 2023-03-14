@@ -56,6 +56,7 @@ basicExpression
 
 assocExpression
     : postfixExpression                                                                 #atom
+    | operator=OP_NOT expr=assocExpression                                              #unaryExpression
     | <assoc=right> lhs=assocExpression operator=ASSIGN rhs=assocExpression             #binaryExpression
     | <assoc=left>  lhs=assocExpression operator=OP_OR rhs=assocExpression              #binaryExpression
     | <assoc=left>  lhs=assocExpression operator=OP_AND rhs=assocExpression             #binaryExpression

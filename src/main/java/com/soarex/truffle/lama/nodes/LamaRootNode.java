@@ -1,10 +1,8 @@
 package com.soarex.truffle.lama.nodes;
 
 import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.soarex.truffle.lama.LamaLanguage;
 
 public final class LamaRootNode extends RootNode {
     @SuppressWarnings("FieldMayBeFinal")

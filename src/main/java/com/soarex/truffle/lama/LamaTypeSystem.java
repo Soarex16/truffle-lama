@@ -1,4 +1,4 @@
-package com.soarex.truffle.lama.nodes;
+package com.soarex.truffle.lama;
 
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeSystem;

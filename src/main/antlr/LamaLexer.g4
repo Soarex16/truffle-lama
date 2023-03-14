@@ -29,6 +29,7 @@ MUL:                        '*';
 DIV:                        '/';
 MOD:                        '%';
 
+OP_NOT:                     '!';
 OP_AND:                     '&&';
 OP_OR:                      '!!';
 OP_LT:                      '<';

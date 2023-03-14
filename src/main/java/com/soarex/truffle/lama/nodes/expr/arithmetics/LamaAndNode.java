@@ -13,11 +13,6 @@ public abstract class LamaAndNode extends BinaryOperation {
         return left && right;
     }
 
-//    @Specialization
-//    protected boolean and(int left, int right) {
-//        return and(left != 0, right != 0);
-//    }
-
     @Fallback
     protected Object typeError(Object left, Object right) {
         throw LamaException.typeError(this, left, right);
