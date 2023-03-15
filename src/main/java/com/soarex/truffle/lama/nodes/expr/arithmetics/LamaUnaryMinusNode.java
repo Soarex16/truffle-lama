@@ -8,11 +8,11 @@ import com.soarex.truffle.lama.LamaException;
 import com.soarex.truffle.lama.nodes.LamaNode;
 import com.soarex.truffle.lama.nodes.expr.UnaryOperation;
 
-@NodeInfo(shortName = "!")
-public abstract class LamaNotNode extends UnaryOperation {
+@NodeInfo(shortName = "-")
+public abstract class LamaUnaryMinusNode extends UnaryOperation {
     @Specialization
-    protected boolean not(boolean value) {
-        return !value;
+    protected int unaryMinus(int value) {
+        return -value;
     }
 
     @Fallback

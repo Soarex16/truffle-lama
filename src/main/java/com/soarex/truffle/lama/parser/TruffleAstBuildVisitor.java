@@ -114,6 +114,8 @@ import java.util.Objects;
 
         return switch (ctx.operator.getType()) {
             case LamaLexer.OP_NOT -> LamaNotNodeGen.create(inner);
+            case LamaLexer.PLUS -> LamaUnaryPlusNodeGen.create(inner);
+            case LamaLexer.MINUS -> LamaUnaryMinusNodeGen.create(inner);
             default -> throw new IllegalStateException("Unexpected value: " + ctx.operator);
         };
     }
@@ -137,14 +139,8 @@ import java.util.Objects;
 
     // Number literals
     @Override
-    public LamaNode visitPositive(LamaParser.PositiveContext ctx) {
+    public LamaNode visitNumberLiteralExpression(LamaParser.NumberLiteralExpressionContext ctx) {
         var num = Integer.parseInt(ctx.num.getText());
-        return new LamaNumberLiteralNode(num);
-    }
-
-    @Override
-    public LamaNode visitNegative(LamaParser.NegativeContext ctx) {
-        var num = -Integer.parseInt(ctx.num.getText());
         return new LamaNumberLiteralNode(num);
     }
 

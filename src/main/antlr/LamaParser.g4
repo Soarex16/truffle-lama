@@ -57,6 +57,8 @@ basicExpression
 assocExpression
     : postfixExpression                                                                 #atom
     | operator=OP_NOT expr=assocExpression                                              #unaryExpression
+    | operator=MINUS expr=assocExpression                                               #unaryExpression
+    | operator=PLUS expr=assocExpression                                                #unaryExpression
     | <assoc=right> lhs=assocExpression operator=ASSIGN rhs=assocExpression             #binaryExpression
     | <assoc=left>  lhs=assocExpression operator=OP_OR rhs=assocExpression              #binaryExpression
     | <assoc=left>  lhs=assocExpression operator=OP_AND rhs=assocExpression             #binaryExpression
@@ -76,7 +78,7 @@ postfixExpression
     ;
 
 primary
-    : numberLiteral                                                                             #numberLiteralExpression
+    : num=NUMBER_LITERAL                                                                        #numberLiteralExpression
     | booleanLiteral                                                                            #booleanLiteralExpression
     | STRING_LITERAL                                                                            #stringLiteral
     | CHARACTER_LITERAL                                                                         #characterLiteral
@@ -91,11 +93,6 @@ primary
     | WHILE expression DO scopeExpression OD                                                    #whileLoop
     | DO scopeExpression WHILE expression OD                                                    #doWhileLoop
     | FOR scopeExpression COMMA expression COMMA expression DO scopeExpression OD               #forLoop
-    ;
-
-numberLiteral
-    : num=NUMBER_LITERAL        #positive
-    | MINUS num=NUMBER_LITERAL  #negative
     ;
 
 booleanLiteral
@@ -120,7 +117,7 @@ pattern
     | alias=L_IDENT (AT pattern)?       #aliasedPattern
     | sExpPattern                       #sExpPat
     | arrayPattern                      #arrayPat
-    | numberLiteral                     #numberPat
+    | numberPattern                     #numberPat
     | booleanLiteral                    #booleanPat
     | STRING_LITERAL                    #stringPat
     | CHARACTER_LITERAL                 #charPat
@@ -131,6 +128,11 @@ pattern
     | PAT_SEXP                          #sExpTypePat
     | PAT_FUN                           #funTypePat
     | WILDCARD                          #wildcard
+    ;
+
+numberPattern
+    : num=NUMBER_LITERAL        #positiveNumberPattern
+    | MINUS num=NUMBER_LITERAL  #negativeNumberPattern
     ;
 
 sExpPattern
