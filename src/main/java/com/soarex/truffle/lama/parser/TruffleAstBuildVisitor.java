@@ -3,8 +3,6 @@ package com.soarex.truffle.lama.parser;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.soarex.truffle.lama.LamaLanguage;
 import com.soarex.truffle.lama.nodes.*;
-import com.soarex.truffle.lama.nodes.expr.SeqExpression;
-import com.soarex.truffle.lama.nodes.expr.SeqExpressionNodeGen;
 import com.soarex.truffle.lama.nodes.expr.arithmetics.*;
 import com.soarex.truffle.lama.nodes.variables.*;
 import com.soarex.truffle.lama.parser.LamaLexer;
@@ -12,8 +10,10 @@ import com.soarex.truffle.lama.parser.LamaParser;
 import com.soarex.truffle.lama.parser.LamaParserBaseVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /* package private */ final class TruffleAstBuildVisitor extends LamaParserBaseVisitor<LamaNode> {
     @Override
@@ -25,7 +25,9 @@ import java.util.Objects;
     public LamaNode visitScopeExpression(LamaParser.ScopeExpressionContext ctx) {
         var scopeExpr = visit(ctx.expr);
         if (ctx.defs.size() > 0) {
-            return SeqExpressionNodeGen.create(expandScopeDefinitions(ctx), scopeExpr);
+            var defs = expandScopeDefinitions(ctx);
+            defs.add(scopeExpr);
+            return new LamaExpressionListNode(defs);
         } else {
             return scopeExpr;
         }
@@ -33,46 +35,33 @@ import java.util.Objects;
 
     @Override
     public LamaNode visitExpression(LamaParser.ExpressionContext ctx) {
-        return seq(ctx.basicExpression().stream().map(this::visit).toList());
+        return new LamaExpressionListNode(ctx.basicExpression().stream().map(this::visit).toList());
     }
 
     // TODO: when we add scope we need to get rid of the Seq and replace it with LamaNode[]
     //  as child nodes of the scope.
-    private LamaNode expandScopeDefinitions(LamaParser.ScopeExpressionContext ctx) {
+    private List<LamaNode> expandScopeDefinitions(LamaParser.ScopeExpressionContext ctx) {
         var defsCollector = new DefinitionCollector();
         defsCollector.visitScopeExpression(ctx);
 
-        LamaNode definitions = seq(
-                defsCollector
-                        .getDefinitions()
-                        .stream()
-                        .map(this::visit)
-                        .filter(Objects::nonNull) // TODO: function definitions
-                        .toList()
-        );
+        var expressions = new ArrayList<LamaNode>();
 
-        var assignments = seq(
-                defsCollector
-                        .getVariableAssignments()
-                        .stream()
-                        .map(assn -> AssignmentNodeGen.create(visit(assn.value()), assn.name()))
-                        .toList()
-        );
+        // definitions
+        defsCollector
+                .getDefinitions()
+                .stream()
+                .map(this::visit)
+                .filter(Objects::nonNull) // TODO: function definitions
+                .collect(Collectors.toCollection(() -> expressions));
 
-        return SeqExpressionNodeGen.create(definitions, assignments);
-    }
+        // assignments
+        defsCollector
+                .getVariableAssignments()
+                .stream()
+                .map(assn -> AssignmentNodeGen.create(visit(assn.value()), assn.name()))
+                .collect(Collectors.toCollection(() -> expressions));
 
-    private LamaNode seq(List<? extends LamaNode> nodes) {
-        assert !nodes.isEmpty();
-
-        // foldr
-        var acc = nodes.get(nodes.size() - 1);
-        for (int i = nodes.size() - 2; i >= 0; i--) {
-            var expr = nodes.get(i);
-            acc = SeqExpressionNodeGen.create(expr, acc);
-        }
-
-        return acc;
+        return expressions;
     }
 
     @Override

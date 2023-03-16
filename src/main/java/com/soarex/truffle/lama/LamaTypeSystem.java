@@ -3,7 +3,7 @@ package com.soarex.truffle.lama;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeSystem;
 
-@TypeSystem({int.class, boolean.class})
+@TypeSystem({boolean.class, int.class})
 public class LamaTypeSystem {
     @ImplicitCast
     public static boolean castIntToBoolean(int value) {
