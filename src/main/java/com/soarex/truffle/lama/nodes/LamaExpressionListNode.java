@@ -2,6 +2,7 @@ package com.soarex.truffle.lama.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.soarex.truffle.lama.runtime.LamaNull;
 
 import java.util.List;
 
@@ -16,9 +17,10 @@ public final class LamaExpressionListNode extends LamaNode {
     @Override
     @ExplodeLoop
     public Object executeGeneric(VirtualFrame frame) {
-        for (int i = 0; i < expressions.length - 1; i++) {
-            expressions[i].executeGeneric(frame);
+        Object ret = LamaNull.INSTANCE;
+        for (LamaNode expression : expressions) {
+            ret = expression.executeGeneric(frame);
         }
-        return expressions[expressions.length - 1].executeGeneric(frame);
+        return ret;
     }
 }
