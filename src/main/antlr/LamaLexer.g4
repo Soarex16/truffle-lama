@@ -61,7 +61,7 @@ FALSE:                      'false';
 
 // Literals
 NUMBER_LITERAL:             [0-9]+;
-CHARACTER_LITERAL:          '\'' (~'\'' | '\'\'' | '\t' | '\n' ) '\'';
+CHARACTER_LITERAL:          '\'' (~['] | '\\\'' | '\\t' | '\\n' ) '\'';
 STRING_LITERAL:             '"' (~'"' | '""')* '"';
 
 // Identifiers

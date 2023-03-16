@@ -69,4 +69,22 @@ public class LamaTest {
                         """);
         assertEquals(result.asInt(), 1 + 2 + 3 + 4);
     }
+
+    @Test
+    void charLiterals() {
+        Value result1 = context.eval("lama", "'1'");
+        assertEquals('1', result1.asInt());
+
+        Value result2 = context.eval("lama", "'\\n'");
+        assertEquals('\n', result2.asInt());
+
+        Value result3 = context.eval("lama", "'\\t'");
+        assertEquals('\t', result3.asInt());
+
+        Value result4 = context.eval("lama", "'\\''");
+        assertEquals('\'', result4.asInt());
+
+        Value result5 = context.eval("lama", "'1' + 1");
+        assertEquals('2', result5.asInt());
+    }
 }

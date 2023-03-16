@@ -133,6 +133,21 @@ import java.util.stream.Collectors;
         return new LamaNumberLiteralNode(num);
     }
 
+    // Character literals
+    // In Lama char literals are simply desugared into character code
+    @Override
+    public LamaNode visitCharacterLiteral(LamaParser.CharacterLiteralContext ctx) {
+        String text = ctx.CHARACTER_LITERAL().getText();
+        String rawSymbol = text.substring(1, text.length() - 1);
+        char symbol = switch (rawSymbol) {
+            case "\\'" -> '\'';
+            case "\\t" -> '\t';
+            case "\\n" -> '\n';
+            default -> rawSymbol.charAt(0);
+        };
+        return new LamaNumberLiteralNode(symbol);
+    }
+
     // Boolean literals
     @Override
     public LamaNode visitTrue(LamaParser.TrueContext ctx) {
