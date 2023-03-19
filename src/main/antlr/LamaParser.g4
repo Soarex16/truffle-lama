@@ -34,11 +34,11 @@ variableDefinitionItem
     ;
 
 functionDefinition
-    : FUN name=L_IDENT OPEN_PARENS args=functionArguments CLOSE_PARENS body=functionBody
+    : FUN name=L_IDENT OPEN_PARENS params=functionParameters CLOSE_PARENS body=functionBody
     ;
 
-functionArguments
-    : (args+=L_IDENT (COMMA args+=L_IDENT)*)?
+functionParameters
+    : (params+=L_IDENT (COMMA params+=L_IDENT)*)?
     ;
 
 functionBody
@@ -87,7 +87,7 @@ primary
     | L_IDENT                                                                                   #identifier
     | OPEN_PARENS scopeExpression CLOSE_PARENS                                                  #scope
     | SKIP_                                                                                     #skip
-    | FUN OPEN_PARENS args=functionArguments CLOSE_PARENS body=functionBody                     #functionExpression
+    | FUN OPEN_PARENS args=functionParameters CLOSE_PARENS body=functionBody                    #functionExpression
     | ifThenElse                                                                                #conditionalExpression
     | caseWhen                                                                                  #caseExpression
     | WHILE expression DO scopeExpression OD                                                    #whileLoop
@@ -96,8 +96,8 @@ primary
     ;
 
 booleanLiteral
-    : TRUE  #true
-    | FALSE #false
+    : val=TRUE
+    | val=FALSE
     ;
 
 caseWhen

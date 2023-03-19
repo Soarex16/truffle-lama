@@ -22,12 +22,13 @@ public final class LamaLanguage extends TruffleLanguage<LamaLanguageContext> {
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
         var code = request.getSource().getReader();
-        var root = new LamaRootNode(this, LamaTruffleParser.parse(code));
+        var parseResult = LamaTruffleParser.parse(code);
+        var root = new LamaRootNode(this, parseResult.frame(), parseResult.expr());
         return root.getCallTarget();
     }
 
     @Override
     protected LamaLanguageContext createContext(Env env) {
-        return new LamaLanguageContext();
+        return new LamaLanguageContext(env);
     }
 }
