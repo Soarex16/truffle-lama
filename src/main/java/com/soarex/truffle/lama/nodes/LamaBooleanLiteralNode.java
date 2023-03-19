@@ -1,9 +1,10 @@
 package com.soarex.truffle.lama.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import com.soarex.truffle.lama.LamaTypeSystem;
 
+@NodeInfo(shortName = "literal(bool)")
 public class LamaBooleanLiteralNode extends LamaNode {
     private final boolean value;
 

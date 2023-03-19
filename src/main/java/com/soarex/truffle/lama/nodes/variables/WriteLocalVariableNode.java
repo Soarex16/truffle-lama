@@ -5,8 +5,10 @@ import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import com.soarex.truffle.lama.nodes.LamaNode;
 
+@NodeInfo(shortName = "write(local)")
 @NodeChild("value")
 @NodeField(name = "slot", type = int.class)
 public abstract class WriteLocalVariableNode extends LamaNode {

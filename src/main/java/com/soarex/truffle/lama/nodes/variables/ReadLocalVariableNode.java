@@ -3,12 +3,10 @@ package com.soarex.truffle.lama.nodes.variables;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.strings.TruffleString;
-import com.soarex.truffle.lama.LamaLanguageContext;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import com.soarex.truffle.lama.nodes.LamaNode;
 
-import java.util.Arrays;
-
+@NodeInfo(shortName = "read(local)")
 @NodeField(name = "slot", type = int.class)
 public abstract class ReadLocalVariableNode extends LamaNode {
     public abstract int getSlot();

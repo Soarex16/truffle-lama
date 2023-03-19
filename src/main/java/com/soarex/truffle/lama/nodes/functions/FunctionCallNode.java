@@ -3,10 +3,12 @@ package com.soarex.truffle.lama.nodes.functions;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import com.soarex.truffle.lama.nodes.LamaNode;
 
 import java.util.List;
 
+@NodeInfo(shortName = "call")
 public class FunctionCallNode extends LamaNode {
     @Children
     private final LamaNode[] argumentNodes;

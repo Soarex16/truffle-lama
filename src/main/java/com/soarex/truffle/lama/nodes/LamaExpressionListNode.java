@@ -2,10 +2,12 @@ package com.soarex.truffle.lama.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import com.soarex.truffle.lama.runtime.LamaNull;
 
 import java.util.List;
 
+@NodeInfo(shortName = "seq")
 public final class LamaExpressionListNode extends LamaNode {
     @Children
     private final LamaNode[] expressions;
