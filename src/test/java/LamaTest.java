@@ -87,4 +87,22 @@ public class LamaTest {
         Value result5 = context.eval("lama", "'1' + 1");
         assertEquals('2', result5.asInt());
     }
+
+    @Test
+    void ifExpression() {
+        var result1 = context.eval("lama", "if 1 == 0 then 42 else 43 fi");
+        assertEquals(43, result1.asInt());
+
+        var result2 = context.eval("lama",
+                """
+                        var a = 1, b = 2;
+                        if a < b then
+                            var c = 3;
+                            a + c
+                        else
+                            b
+                        fi
+                        """);
+        assertEquals(4, result2.asInt());
+    }
 }

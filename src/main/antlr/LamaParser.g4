@@ -144,10 +144,10 @@ arrayPattern
     ;
 
 ifThenElse
-    : IF expression THEN scopeExpression elsePart? FI
+    : IF cond=expression THEN then=scopeExpression elsePart? FI
     ;
 
 elsePart
-    : ELIF expression THEN scopeExpression elsePart?
-    | ELSE scopeExpression
+    : ELIF cond=expression THEN then=scopeExpression elsePart? #elseIf
+    | ELSE scopeExpression                                     #else
     ;

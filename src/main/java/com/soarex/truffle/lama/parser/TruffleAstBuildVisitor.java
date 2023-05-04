@@ -4,6 +4,7 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.soarex.truffle.lama.LamaLanguage;
 import com.soarex.truffle.lama.nodes.*;
 import com.soarex.truffle.lama.nodes.expr.arithmetics.*;
+import com.soarex.truffle.lama.nodes.expr.control.*;
 import com.soarex.truffle.lama.nodes.variables.*;
 import com.soarex.truffle.lama.parser.LamaLexer;
 import com.soarex.truffle.lama.parser.LamaParser;
@@ -146,6 +147,27 @@ import java.util.stream.Collectors;
             default -> rawSymbol.charAt(0);
         };
         return new LamaNumberLiteralNode(symbol);
+    }
+
+    @Override
+    public LamaNode visitIfThenElse(LamaParser.IfThenElseContext ctx) {
+        var cond = visitExpression(ctx.cond);
+        var then = visitScopeExpression(ctx.then);
+        var elss = ctx.elsePart() == null ? null : visit(ctx.elsePart());
+        return new LamaIfNode(cond, then, elss);
+    }
+
+    @Override
+    public LamaNode visitElseIf(LamaParser.ElseIfContext ctx) {
+        var cond = visitExpression(ctx.cond);
+        var then = visitScopeExpression(ctx.then);
+        var elss = ctx.elsePart() == null ? null : visit(ctx.elsePart());
+        return new LamaIfNode(cond, then, elss);
+    }
+
+    @Override
+    public LamaNode visitElse(LamaParser.ElseContext ctx) {
+        return visitScopeExpression(ctx.scopeExpression());
     }
 
     // Boolean literals
