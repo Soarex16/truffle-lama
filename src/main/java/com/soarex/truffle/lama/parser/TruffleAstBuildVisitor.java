@@ -1,37 +1,56 @@
 package com.soarex.truffle.lama.parser;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.strings.TruffleString;
+import com.soarex.truffle.lama.LamaException;
 import com.soarex.truffle.lama.LamaLanguage;
 import com.soarex.truffle.lama.nodes.*;
 import com.soarex.truffle.lama.nodes.expr.arithmetics.*;
 import com.soarex.truffle.lama.nodes.expr.control.*;
+import com.soarex.truffle.lama.nodes.functions.FunctionDeclarationNode;
 import com.soarex.truffle.lama.nodes.variables.*;
 import com.soarex.truffle.lama.parser.LamaLexer;
 import com.soarex.truffle.lama.parser.LamaParser;
 import com.soarex.truffle.lama.parser.LamaParserBaseVisitor;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /* package private */ final class TruffleAstBuildVisitor extends LamaParserBaseVisitor<LamaNode> {
+    final ParserState state = new ParserState();
+
     @Override
     public LamaNode visitProgram(LamaParser.ProgramContext ctx) {
         return super.visitChildren(ctx);
     }
 
+    private static TruffleString asTruffleString(String text) {
+        return TruffleString.fromJavaStringUncached(text, LamaLanguage.STRING_ENCODING);
+    }
+
     @Override
     public LamaNode visitScopeExpression(LamaParser.ScopeExpressionContext ctx) {
-        var scopeExpr = visit(ctx.expr);
+        state.enterScope();
+
+        List<LamaNode> defs = expandScopeDefinitions(ctx);
+        var scopeExpr = ctx.expr == null ? null : visit(ctx.expr);
+
+        LamaNode ret;
         if (ctx.defs.size() > 0) {
-            var defs = expandScopeDefinitions(ctx);
-            defs.add(scopeExpr);
-            return new LamaExpressionListNode(defs);
+            if (scopeExpr != null) {
+                defs.add(scopeExpr);
+            }
+            ret = new LamaExpressionListNode(defs);
         } else {
-            return scopeExpr;
+            ret = scopeExpr;
         }
+
+        state.leaveScope();
+        return ret;
     }
 
     @Override
@@ -39,9 +58,16 @@ import java.util.stream.Collectors;
         return new LamaExpressionListNode(ctx.basicExpression().stream().map(this::visit).toList());
     }
 
-    // TODO: when we add scope we need to get rid of the Seq and replace it with LamaNode[]
-    //  as child nodes of the scope.
+    @Override
+    public LamaNode visitScope(LamaParser.ScopeContext ctx) {
+        return visit(ctx.scopeExpression());
+    }
+
     private List<LamaNode> expandScopeDefinitions(LamaParser.ScopeExpressionContext ctx) {
+        if (ctx.defs.size() == 0) {
+            return Collections.emptyList();
+        }
+
         var defsCollector = new DefinitionCollector();
         defsCollector.visitScopeExpression(ctx);
 
@@ -52,27 +78,41 @@ import java.util.stream.Collectors;
                 .getDefinitions()
                 .stream()
                 .map(this::visit)
-                .filter(Objects::nonNull) // TODO: function definitions
                 .collect(Collectors.toCollection(() -> expressions));
 
         // assignments
         defsCollector
                 .getVariableAssignments()
-                .stream()
-                .map(assn -> AssignmentNodeGen.create(visit(assn.value()), assn.name()))
-                .collect(Collectors.toCollection(() -> expressions));
+                .forEach(assn -> {
+                    FrameMember.LocalVariable localVar = (FrameMember.LocalVariable) state.lookup(asTruffleString(assn.name()));
+                    var writeNode = WriteLocalVariableNodeGen.create(visit(assn.value()), localVar.index());
+                    expressions.add(writeNode);
+                });
 
         return expressions;
     }
 
     @Override
     public LamaNode visitVariableDefinitionItem(LamaParser.VariableDefinitionItemContext ctx) {
-        return GlobalVarDeclarationNodeGen.create(ctx.name.getText());
+        var localVariable = state.declareVariable(asTruffleString(ctx.name.getText()));
+        return new LocalVarDeclarationNode(localVariable.index());
     }
 
     @Override
     public LamaNode visitFunctionDefinition(LamaParser.FunctionDefinitionContext ctx) {
-        return null; // TODO: functions
+        state.enterFunction();
+
+        var name = asTruffleString(ctx.name.getText());
+        var args = ctx.params.params
+                .stream()
+                .map(Token::getText)
+                .map(TruffleAstBuildVisitor::asTruffleString)
+                .toList();
+        state.declareFunctionParams(args);
+        var body = visit(ctx.body);
+
+        FrameDescriptor frame = state.leaveFunction();
+        return new FunctionDeclarationNode(name, frame, args.size(), body);
     }
 
     @Override
@@ -88,14 +128,19 @@ import java.util.stream.Collectors;
             case LamaLexer.MOD -> LamaModNodeGen.create(lhs, rhs);
             case LamaLexer.OP_OR -> LamaOrNodeGen.create(lhs, rhs);
             case LamaLexer.OP_AND -> LamaAndNodeGen.create(lhs, rhs);
-            case LamaLexer.ASSIGN -> throw new UnsupportedOperationException("TODO");
+            case LamaLexer.ASSIGN -> createAssignment(lhs, rhs);
             default -> throw new IllegalStateException("Unexpected value: " + ctx.operator);
         };
     }
 
-    @Override
-    public LamaNode visitIdentifier(LamaParser.IdentifierContext ctx) {
-        return GlobalVarReferenceExprNodeGen.create(ctx.L_IDENT().getText());
+    // TODO: generic case when lhs - any LamaNode (array, s-exp, etc)
+    private LamaNode createAssignment(LamaNode ref, LamaNode value) {
+        if (ref instanceof ReadLocalVariableNodeGen readLocal) {
+            return WriteLocalVariableNodeGen.create(value, readLocal.getSlot());
+        } else if (ref instanceof ReadArgumentNode readArg) {
+            return new WriteArgumentNode(readArg.getIndex(), value);
+        }
+        throw new IllegalStateException("Unexpected value: " + ref);
     }
 
     @Override
@@ -115,12 +160,29 @@ import java.util.stream.Collectors;
         return new LamaSkipNode();
     }
 
+    @Override
+    public LamaNode visitIdentifier(LamaParser.IdentifierContext ctx) {
+        var name = asTruffleString(ctx.L_IDENT().getText());
+        var lookupResult = state.lookup(name);
+        if (lookupResult == null) {
+            throw new LamaException("variable '" + name + "' is not declared");
+        }
+
+        if (lookupResult instanceof FrameMember.LocalVariable v) {
+            return ReadLocalVariableNodeGen.create(v.index());
+        }
+        if (lookupResult instanceof FrameMember.FunctionParameter p) {
+            return new ReadArgumentNode(p.index());
+        }
+
+        throw new IllegalStateException("Unexpected value: " + lookupResult);
+    }
+
     // String literal
     @Override
     public LamaNode visitStringLiteral(LamaParser.StringLiteralContext ctx) {
         var text = removeQuotes(ctx.STRING_LITERAL().getText());
-        var truffleString = TruffleString.fromJavaStringUncached(text, LamaLanguage.STRING_ENCODING);
-        return new LamaStringLiteralNode(truffleString);
+        return new LamaStringLiteralNode(asTruffleString(text));
     }
 
     private String removeQuotes(String text) {
@@ -171,13 +233,14 @@ import java.util.stream.Collectors;
     }
 
     // Boolean literals
-    @Override
-    public LamaNode visitTrue(LamaParser.TrueContext ctx) {
-        return new LamaBooleanLiteralNode(true);
-    }
 
     @Override
-    public LamaNode visitFalse(LamaParser.FalseContext ctx) {
-        return new LamaBooleanLiteralNode(false);
+    public LamaNode visitBooleanLiteral(LamaParser.BooleanLiteralContext ctx) {
+        var value = switch (ctx.val.getType()) {
+            case LamaLexer.FALSE -> false;
+            case LamaLexer.TRUE -> true;
+            default -> throw new IllegalStateException("Unexpected value: " + ctx.val.getType());
+        };
+        return new LamaBooleanLiteralNode(value);
     }
 }

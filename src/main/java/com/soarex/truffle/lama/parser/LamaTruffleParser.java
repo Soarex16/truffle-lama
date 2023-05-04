@@ -1,5 +1,6 @@
 package com.soarex.truffle.lama.parser;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.soarex.truffle.lama.nodes.LamaNode;
 import com.soarex.truffle.lama.parser.LamaLexer;
 import com.soarex.truffle.lama.parser.LamaParser;
@@ -12,18 +13,18 @@ import java.io.IOException;
 import java.io.Reader;
 
 public final class LamaTruffleParser {
+    private LamaTruffleParser() {
+    }
 
-    private LamaTruffleParser() { }
-
-    public static LamaNode parse(String code) {
+    public static ParseResult parse(String code) {
         return parse(CharStreams.fromString(code));
     }
 
-    public static LamaNode parse(Reader code) throws IOException {
+    public static ParseResult parse(Reader code) throws IOException {
         return parse(CharStreams.fromReader(code));
     }
 
-    private static LamaNode parse(CharStream inputStream) {
+    private static ParseResult parse(CharStream inputStream) {
         var lexer = new LamaLexer(inputStream);
         var parser = new LamaParser(new CommonTokenStream(lexer));
         lexer.removeErrorListeners();
@@ -33,6 +34,12 @@ public final class LamaTruffleParser {
         var scopeExpr = parser.program().scopeExpression();
 
         var visitor = new TruffleAstBuildVisitor();
-        return visitor.visitScopeExpression(scopeExpr);
+        visitor.state.enterFunction();
+        var expr = visitor.visitScopeExpression(scopeExpr);
+        var frame = visitor.state.leaveFunction();
+        return new ParseResult(frame, expr);
+    }
+
+    public record ParseResult(FrameDescriptor frame, LamaNode expr) {
     }
 }

@@ -1,6 +1,7 @@
 package com.soarex.truffle.lama.nodes;
 
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
@@ -11,6 +12,11 @@ public final class LamaRootNode extends RootNode {
 
     public LamaRootNode(TruffleLanguage<?> language, LamaNode root) {
         super(language);
+        this.root = root;
+    }
+
+    public LamaRootNode(TruffleLanguage<?> language, FrameDescriptor frameDescriptor, LamaNode root) {
+        super(language, frameDescriptor);
         this.root = root;
     }
 

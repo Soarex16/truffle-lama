@@ -56,36 +56,93 @@ public class LamaTest {
     @Test
     void stringLiterals() {
         Value result = context.eval("lama", "\"foo\"");
-        assertEquals(result.asString(), "foo");
+        assertEquals("foo", result.asString());
     }
 
     @Test
-    void definitions() {
-        Value result = context.eval("lama",
+    void simpleVariableDefinitions() {
+        Value result1 = context.eval("lama",
+                """
+                        var a = 1;
+                        a
+                        """);
+        assertEquals(1, result1.asInt());
+
+        Value result2 = context.eval("lama",
+                """
+                        var a = 1, b = 2;
+                        b
+                        """);
+        assertEquals(2, result2.asInt());
+
+        Value result3 = context.eval("lama",
+                """
+                        var a = 1, b = 2;
+                        b := a;
+                        b
+                        """);
+        assertEquals(1, result3.asInt());
+
+        Value result4 = context.eval("lama",
+                """
+                        var a = 1, b = 2;
+                        var c = 0;
+                        c := a + b
+                        """);
+        assertEquals(1 + 2, result4.asInt());
+
+        Value result5 = context.eval("lama",
+                """
+                        var a = 1, b = 2;
+                        var c = a + b;
+                        c
+                        """);
+        assertEquals(1 + 2, result5.asInt());
+
+        Value result6 = context.eval("lama",
                 """
                         var a = 1, b = 2;
                         var c = 3, d = 4;
                         a + b + c + d
                         """);
-        assertEquals(result.asInt(), 1 + 2 + 3 + 4);
+        assertEquals(1 + 2 + 3 + 4, result6.asInt());
+    }
+
+    @Test
+    void simpleVariableDefinitionsWithScopes() {
+        Value result1 = context.eval("lama",
+                """
+                        var a = 1;
+                        (
+                            var a = 2;
+                        );
+                        a
+                        """);
+        assertEquals(1, result1.asInt());
     }
 
     @Test
     void charLiterals() {
         Value result1 = context.eval("lama", "'1'");
-        assertEquals('1', result1.asInt());
+        assertEquals(result1.asInt(), '1');
 
         Value result2 = context.eval("lama", "'\\n'");
-        assertEquals('\n', result2.asInt());
+        assertEquals(result2.asInt(), '\n');
 
         Value result3 = context.eval("lama", "'\\t'");
-        assertEquals('\t', result3.asInt());
+        assertEquals(result3.asInt(), '\t');
 
         Value result4 = context.eval("lama", "'\\''");
-        assertEquals('\'', result4.asInt());
+        assertEquals(result4.asInt(), '\'');
 
         Value result5 = context.eval("lama", "'1' + 1");
-        assertEquals('2', result5.asInt());
+        assertEquals(result5.asInt(), '2');
+    }
+
+    @Test
+    void implicitWideningCastFromBoolToInt() {
+        Value result = context.eval("lama", "1 + true");
+        assertEquals(result.asInt(), 2);
     }
 
     @Test
