@@ -6,6 +6,8 @@ import com.soarex.truffle.lama.LamaException;
 import com.soarex.truffle.lama.LamaLanguage;
 import com.soarex.truffle.lama.nodes.*;
 import com.soarex.truffle.lama.nodes.expr.arithmetics.*;
+import com.soarex.truffle.lama.nodes.expr.cmp.LamaCmpNode;
+import com.soarex.truffle.lama.nodes.expr.cmp.LamaCmpNodeGen;
 import com.soarex.truffle.lama.nodes.expr.control.*;
 import com.soarex.truffle.lama.nodes.functions.FunctionDeclarationNode;
 import com.soarex.truffle.lama.nodes.variables.*;
@@ -212,6 +214,13 @@ import java.util.stream.Collectors;
     }
 
     @Override
+    public LamaNode visitComparisonExpression(LamaParser.ComparisonExpressionContext ctx) {
+        var lhs = visit(ctx.lhs);
+        var rhs = visit(ctx.rhs);
+        return LamaCmpNodeGen.create(lhs, rhs, LamaCmpNode.Op.fromRepr(ctx.operator.getText()));
+    }
+
+    @Override
     public LamaNode visitIfThenElse(LamaParser.IfThenElseContext ctx) {
         var cond = visitExpression(ctx.cond);
         var then = visitScopeExpression(ctx.then);
@@ -232,8 +241,19 @@ import java.util.stream.Collectors;
         return visitScopeExpression(ctx.scopeExpression());
     }
 
-    // Boolean literals
+    @Override
+    public LamaNode visitWhileLoop(LamaParser.WhileLoopContext ctx) {
+        var cond = visitExpression(ctx.expression());
+        var body = visitScopeExpression(ctx.scopeExpression());
+        return new LamaWhileNode(cond, body);
+    }
 
+//    @Override
+//    public LamaNode visitDoWhileLoop(LamaParser.DoWhileLoopContext ctx) {
+//        return super.visitDoWhileLoop(ctx);
+//    }
+
+    // Boolean literals
     @Override
     public LamaNode visitBooleanLiteral(LamaParser.BooleanLiteralContext ctx) {
         var value = switch (ctx.val.getType()) {

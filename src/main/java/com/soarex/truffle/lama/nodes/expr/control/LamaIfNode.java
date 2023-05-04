@@ -5,12 +5,10 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.soarex.truffle.lama.nodes.LamaNode;
+import com.soarex.truffle.lama.runtime.LamaNull;
 
 @SuppressWarnings("FieldMayBeFinal")
 @NodeInfo(shortName = "if")
-//@NodeChild("cond")
-//@NodeChild("then")
-//@NodeChild("else")
 public final class LamaIfNode extends LamaNode {
     @Child
     private LamaNode condExpr;
@@ -27,22 +25,12 @@ public final class LamaIfNode extends LamaNode {
         this.elseExpr = elseExpr;
     }
 
-    public int executeInt(VirtualFrame frame) throws UnexpectedResultException {
-        return condExpr.executeInt(frame) != 0
-                ? thenExpr.executeInt(frame)
-                : elseExpr.executeInt(frame);
-//        return condProfile.profile(condExpr.executeInt(frame) != 0)
-//                ? thenExpr.executeInt(frame)
-//                : elseExpr == null ? throw new LamaException() : elseExpr.executeInt(frame);
-//        throw new IllegalStateException("");
-    }
-
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        try {
-            return executeInt(frame);
-        } catch (UnexpectedResultException e) {
-            throw new RuntimeException(e);
+        if (condProfile.profile(!condExpr.executeGeneric(frame).equals(0))) {
+            return thenExpr.executeGeneric(frame);
+        } else {
+            return elseExpr == null ? LamaNull.INSTANCE : elseExpr.executeGeneric(frame);
         }
     }
 }
