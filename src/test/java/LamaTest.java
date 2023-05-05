@@ -1,8 +1,10 @@
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LamaTest {
     private Context context;
@@ -212,6 +214,38 @@ public class LamaTest {
                             b := c;
                             n := n + 1
                         od;
+                        b
+                        """);
+        assertEquals(13, result1.asInt());
+    }
+
+    @Test
+    void forLoop() {
+        var result1 = context.eval("lama",
+                """
+                        var a = 0, b = 1;
+                        for var n = 2;, n < 8, n := n + 1 do
+                            var c = a + b;
+                            a := b;
+                            b := c
+                        od;
+                        b
+                        """);
+        assertEquals(13, result1.asInt());
+    }
+
+    @Test
+    void doWhileLoop() {
+        var result1 = context.eval("lama",
+                """
+                        var a = 0, b = 1;
+                        var n = 2;
+                        do
+                            var c = a + b;
+                            a := b;
+                            b := c;
+                            n := n + 1
+                        while n < 8 od;
                         b
                         """);
         assertEquals(13, result1.asInt());

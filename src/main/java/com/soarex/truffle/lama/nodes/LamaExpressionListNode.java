@@ -12,6 +12,10 @@ public final class LamaExpressionListNode extends LamaNode {
     @Children
     private final LamaNode[] expressions;
 
+    public LamaExpressionListNode(LamaNode... nodes) {
+        this.expressions = nodes;
+    }
+
     public LamaExpressionListNode(List<? extends LamaNode> expressions) {
         this.expressions = expressions.toArray(new LamaNode[0]);
     }

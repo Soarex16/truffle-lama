@@ -78,21 +78,21 @@ postfixExpression
     ;
 
 primary
-    : num=NUMBER_LITERAL                                                                        #numberLiteralExpression
-    | booleanLiteral                                                                            #booleanLiteralExpression
-    | STRING_LITERAL                                                                            #stringLiteral
-    | CHARACTER_LITERAL                                                                         #characterLiteral
-    | OPEN_BRACKET (items+=expression (COMMA items+=expression)*)? CLOSE_BRACKET                #arrayLiteral
-    | tag=U_IDENT (OPEN_PARENS (items+=expression (COMMA items+=expression)*)? CLOSE_PARENS)?   #sExp
-    | L_IDENT                                                                                   #identifier
-    | OPEN_PARENS scopeExpression CLOSE_PARENS                                                  #scope
-    | SKIP_                                                                                     #skip
-    | FUN OPEN_PARENS args=functionParameters CLOSE_PARENS body=functionBody                    #functionExpression
-    | ifThenElse                                                                                #conditionalExpression
-    | caseWhen                                                                                  #caseExpression
-    | WHILE expression DO scopeExpression OD                                                    #whileLoop
-    | DO scopeExpression WHILE expression OD                                                    #doWhileLoop
-    | FOR scopeExpression COMMA expression COMMA expression DO scopeExpression OD               #forLoop
+    : num=NUMBER_LITERAL                                                                                #numberLiteralExpression
+    | booleanLiteral                                                                                    #booleanLiteralExpression
+    | STRING_LITERAL                                                                                    #stringLiteral
+    | CHARACTER_LITERAL                                                                                 #characterLiteral
+    | OPEN_BRACKET (items+=expression (COMMA items+=expression)*)? CLOSE_BRACKET                        #arrayLiteral
+    | tag=U_IDENT (OPEN_PARENS (items+=expression (COMMA items+=expression)*)? CLOSE_PARENS)?           #sExp
+    | L_IDENT                                                                                           #identifier
+    | OPEN_PARENS scopeExpression CLOSE_PARENS                                                          #scope
+    | SKIP_                                                                                             #skip
+    | FUN OPEN_PARENS args=functionParameters CLOSE_PARENS body=functionBody                            #functionExpression
+    | ifThenElse                                                                                        #conditionalExpression
+    | caseWhen                                                                                          #caseExpression
+    | WHILE expression DO scopeExpression OD                                                            #whileLoop
+    | DO scopeExpression WHILE expression OD                                                            #doWhileLoop
+    | FOR init=scopeExpression COMMA stop=expression COMMA update=expression DO body=scopeExpression OD #forLoop
     ;
 
 booleanLiteral

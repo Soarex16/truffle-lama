@@ -36,6 +36,10 @@ import java.util.stream.Collectors;
 
     @Override
     public LamaNode visitScopeExpression(LamaParser.ScopeExpressionContext ctx) {
+        return visitScopeExpression(ctx, true);
+    }
+
+    private LamaNode visitScopeExpression(LamaParser.ScopeExpressionContext ctx, boolean leaveScope) {
         state.enterScope();
 
         List<LamaNode> defs = expandScopeDefinitions(ctx);
@@ -51,7 +55,9 @@ import java.util.stream.Collectors;
             ret = scopeExpr;
         }
 
-        state.leaveScope();
+        if (leaveScope) {
+            state.leaveScope();
+        }
         return ret;
     }
 
@@ -248,10 +254,23 @@ import java.util.stream.Collectors;
         return new LamaWhileNode(cond, body);
     }
 
-//    @Override
-//    public LamaNode visitDoWhileLoop(LamaParser.DoWhileLoopContext ctx) {
-//        return super.visitDoWhileLoop(ctx);
-//    }
+    @Override
+    public LamaNode visitDoWhileLoop(LamaParser.DoWhileLoopContext ctx) {
+        var body = visitScopeExpression(ctx.scopeExpression(), false);
+        var cond = visit(ctx.expression());
+        this.state.leaveScope();
+        return new LamaExpressionListNode(body, new LamaWhileNode(cond, body));
+    }
+
+    @Override
+    public LamaNode visitForLoop(LamaParser.ForLoopContext ctx) {
+        var init = visitScopeExpression(ctx.init, false);
+        var stop = visit(ctx.stop);
+        var update = visit(ctx.update);
+        var body = visitScopeExpression(ctx.body);
+        this.state.leaveScope();
+        return new LamaExpressionListNode(init, new LamaWhileNode(stop, new LamaExpressionListNode(body, update)));
+    }
 
     // Boolean literals
     @Override
