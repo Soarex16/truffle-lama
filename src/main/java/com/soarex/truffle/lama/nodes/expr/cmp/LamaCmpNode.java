@@ -10,25 +10,6 @@ import com.soarex.truffle.lama.nodes.expr.BinaryOperation;
 @NodeInfo(shortName = "cmp")
 @NodeField(name = "op", type = LamaCmpNode.Op.class)
 public abstract class LamaCmpNode extends BinaryOperation {
-    public enum Op {
-        LT("<"), LE("<="), EQ("=="), NEQ("/="), GE(">="), GT(">");
-
-        private final String repr;
-
-        Op(String repr) {
-            this.repr = repr;
-        }
-
-        public static Op fromRepr(String repr) {
-            for (var value : values()) {
-                if (value.repr.equals(repr)) {
-                    return value;
-                }
-            }
-            throw new IllegalArgumentException("No such comparison operation: '" + repr + "'");
-        }
-    }
-
     abstract protected Op getOp();
 
     @Specialization
@@ -46,5 +27,24 @@ public abstract class LamaCmpNode extends BinaryOperation {
     @Fallback
     protected Object typeError(Object lhs, Object rhs) {
         throw LamaException.typeError(this, lhs, rhs);
+    }
+
+    public enum Op {
+        LT("<"), LE("<="), EQ("=="), NEQ("/="), GE(">="), GT(">");
+
+        private final String repr;
+
+        Op(String repr) {
+            this.repr = repr;
+        }
+
+        public static Op fromRepr(String repr) {
+            for (var value : values()) {
+                if (value.repr.equals(repr)) {
+                    return value;
+                }
+            }
+            throw new IllegalArgumentException("No such comparison operation: '" + repr + "'");
+        }
     }
 }

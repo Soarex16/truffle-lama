@@ -6,6 +6,7 @@ import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RepeatingNode;
+import com.soarex.truffle.lama.LamaTypeSystemGen;
 import com.soarex.truffle.lama.nodes.LamaNode;
 import com.soarex.truffle.lama.runtime.LamaNull;
 
@@ -40,7 +41,7 @@ public final class LamaWhileNode extends LamaNode {
 
         @Override
         public boolean executeRepeating(VirtualFrame frame) {
-            if (cond.executeGeneric(frame).equals(0)) {
+            if (!LamaTypeSystemGen.asBoolean(cond.executeGeneric(frame))) {
                 return false;
             }
             body.executeGeneric(frame);

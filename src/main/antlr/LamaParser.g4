@@ -59,12 +59,12 @@ assocExpression
     | operator=OP_NOT expr=assocExpression                                              #unaryExpression
     | operator=MINUS expr=assocExpression                                               #unaryExpression
     | operator=PLUS expr=assocExpression                                                #unaryExpression
-    | <assoc=right> lhs=assocExpression operator=ASSIGN rhs=assocExpression             #binaryExpression
-    | <assoc=left>  lhs=assocExpression operator=OP_OR rhs=assocExpression              #binaryExpression
-    | <assoc=left>  lhs=assocExpression operator=OP_AND rhs=assocExpression             #binaryExpression
-    // by precedence here was comparison
-    | <assoc=left>  lhs=assocExpression operator=(PLUS | MINUS) rhs=assocExpression     #binaryExpression
     | <assoc=left>  lhs=assocExpression operator=(MUL | DIV | MOD) rhs=assocExpression  #binaryExpression
+    | <assoc=left>  lhs=assocExpression operator=(PLUS | MINUS) rhs=assocExpression     #binaryExpression
+    // by precedence here was comparison
+    | <assoc=left>  lhs=assocExpression operator=OP_AND rhs=assocExpression             #binaryExpression
+    | <assoc=left>  lhs=assocExpression operator=OP_OR rhs=assocExpression              #binaryExpression
+    | <assoc=right> lhs=assocExpression operator=ASSIGN rhs=assocExpression             #binaryExpression
     ;
 
 comparisonExpression

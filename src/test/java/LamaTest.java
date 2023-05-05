@@ -206,7 +206,7 @@ public class LamaTest {
                 """
                         var a = 0, b = 1;
                         var n = 2;
-                        while b <= 14 do
+                        while n < 8 do
                             var c = a + b;
                             a := b;
                             b := c;
