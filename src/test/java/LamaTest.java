@@ -1,6 +1,8 @@
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -122,6 +124,25 @@ public class LamaTest {
     }
 
     @Test
+    void nestedScopes() {
+        Value result1 = context.eval("lama",
+                """
+                        var a = 1;
+                        var b = 1;
+                        (
+                            var a = 2;
+                            b := 3;
+                            (
+                                var b = 42;
+                                a := 20
+                            )
+                        );
+                        a + b
+                        """);
+        assertEquals(4, result1.asInt());
+    }
+
+    @Test
     void charLiterals() {
         Value result1 = context.eval("lama", "'1'");
         assertEquals(result1.asInt(), '1');
@@ -143,5 +164,108 @@ public class LamaTest {
     void implicitWideningCastFromBoolToInt() {
         Value result = context.eval("lama", "1 + true");
         assertEquals(result.asInt(), 2);
+    }
+
+    @Test
+    void basicIfExpression() {
+        var result1 = context.eval("lama", "if 1 == 0 then 42 else 43 fi");
+        assertEquals(43, result1.asInt());
+
+        var result2 = context.eval("lama",
+                """
+                        var a = 1, b = 2;
+                        if a < b then
+                            var c = 3;
+                            a + c
+                        else
+                            b
+                        fi
+                        """);
+        assertEquals(4, result2.asInt());
+    }
+
+    @Test
+    void ifExprScopes() {
+        var result1 = context.eval("lama",
+                """
+                        var a = 1, b = 2;
+                        if a < b then
+                            var c = 3;
+                            var b = 5;
+                            b := 10;
+                            a := c
+                        else
+                            b
+                        fi;
+                        a + b
+                        """);
+        assertEquals(5, result1.asInt());
+    }
+
+    @Test
+    void elseIf() {
+        var result1 = context.eval("lama",
+                """
+                        var a = 2, b = 2;
+                        if a > b then
+                            42
+                        elif a < b then
+                            43
+                        elif a == b then
+                            a + b
+                        else
+                            44
+                        fi
+                        """);
+        assertEquals(4, result1.asInt());
+    }
+
+    @Test
+    void basicWhile() {
+        var result1 = context.eval("lama",
+                """
+                        var a = 0, b = 1;
+                        var n = 2;
+                        while n < 8 do
+                            var c = a + b;
+                            a := b;
+                            b := c;
+                            n := n + 1
+                        od;
+                        b
+                        """);
+        assertEquals(13, result1.asInt());
+    }
+
+    @Test
+    void forLoop() {
+        var result1 = context.eval("lama",
+                """
+                        var a = 0, b = 1;
+                        for var n = 2;, n < 8, n := n + 1 do
+                            var c = a + b;
+                            a := b;
+                            b := c
+                        od;
+                        b
+                        """);
+        assertEquals(13, result1.asInt());
+    }
+
+    @Test
+    void doWhileLoop() {
+        var result1 = context.eval("lama",
+                """
+                        var a = 0, b = 1;
+                        var n = 2;
+                        do
+                            var c = a + b;
+                            a := b;
+                            b := c;
+                            n := n + 1
+                        while n < 8 od;
+                        b
+                        """);
+        assertEquals(13, result1.asInt());
     }
 }

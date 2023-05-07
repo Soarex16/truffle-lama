@@ -1,11 +1,9 @@
 package com.soarex.truffle.lama.nodes.expr.arithmetics;
 
 import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.soarex.truffle.lama.LamaException;
-import com.soarex.truffle.lama.nodes.LamaNode;
 import com.soarex.truffle.lama.nodes.expr.UnaryOperation;
 
 @NodeInfo(shortName = "+")
