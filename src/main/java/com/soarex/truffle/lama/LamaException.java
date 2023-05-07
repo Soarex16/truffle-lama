@@ -33,7 +33,7 @@ public final class LamaException extends AbstractTruffleException {
         String sep = "";
         for (Object value : values) {
             result.append(sep);
-            result.append(value.toString());
+            result.append(value == null ? null : value.toString());
             sep = ", ";
         }
         result.append(")");

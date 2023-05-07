@@ -38,12 +38,6 @@ tasks.test {
     useJUnitPlatform()
     val patchArgs = listOf(
         "-ea",
-        "--add-exports",
-        "org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED",
-        "--add-exports",
-        "org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED",
-        "--add-exports",
-        "org.graalvm.truffle/com.oracle.truffle.api.staticobject=ALL-UNNAMED",
         "-Dgraalvm.locatorDisabled=true",
         "-Dgraal.Dump=:1",
         "-Dgraal.PrintGraph=Network"

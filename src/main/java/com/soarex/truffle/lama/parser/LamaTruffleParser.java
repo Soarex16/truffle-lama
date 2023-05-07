@@ -1,9 +1,11 @@
 package com.soarex.truffle.lama.parser;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.soarex.truffle.lama.LamaLanguage;
 import com.soarex.truffle.lama.nodes.LamaNode;
 import com.soarex.truffle.lama.parser.LamaLexer;
 import com.soarex.truffle.lama.parser.LamaParser;
+import com.soarex.truffle.lama.runtime.GlobalScope;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -13,18 +15,21 @@ import java.io.IOException;
 import java.io.Reader;
 
 public final class LamaTruffleParser {
-    private LamaTruffleParser() {
+    private final LamaLanguage lamaLanguage;
+
+    public LamaTruffleParser(LamaLanguage lamaLanguage) {
+        this.lamaLanguage = lamaLanguage;
     }
 
-    public static ParseResult parse(String code) {
+    public ParseResult parse(String code) {
         return parse(CharStreams.fromString(code));
     }
 
-    public static ParseResult parse(Reader code) throws IOException {
+    public ParseResult parse(Reader code) throws IOException {
         return parse(CharStreams.fromReader(code));
     }
 
-    private static ParseResult parse(CharStream inputStream) {
+    private ParseResult parse(CharStream inputStream) {
         var lexer = new LamaLexer(inputStream);
         var parser = new LamaParser(new CommonTokenStream(lexer));
         lexer.removeErrorListeners();
@@ -33,13 +38,11 @@ public final class LamaTruffleParser {
         parser.setErrorHandler(new BailErrorStrategy());
         var scopeExpr = parser.program().scopeExpression();
 
-        var visitor = new TruffleAstBuildVisitor();
-        visitor.state.enterFunction();
+        var visitor = new TruffleAstBuildVisitor(lamaLanguage);
         var expr = visitor.visitScopeExpression(scopeExpr);
-        var frame = visitor.state.leaveFunction();
-        return new ParseResult(frame, expr);
+        return new ParseResult(expr);
     }
 
-    public record ParseResult(FrameDescriptor frame, LamaNode expr) {
+    public record ParseResult(LamaNode expr) {
     }
 }

@@ -8,7 +8,7 @@ import com.soarex.truffle.lama.nodes.LamaNode;
 
 @NodeInfo(shortName = "read(local)")
 @NodeField(name = "slot", type = int.class)
-public abstract class ReadLocalVariableNode extends LamaNode {
+public abstract class ReadLocalVarNode extends LamaNode {
     public abstract int getSlot();
 
     @Specialization(guards = "frame.isBoolean(getSlot())")

@@ -6,29 +6,29 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.soarex.truffle.lama.nodes.LamaNode;
+import com.soarex.truffle.lama.runtime.FunctionObject;
 import com.soarex.truffle.lama.runtime.LamaNull;
 
 @NodeInfo(shortName = "fun")
 public final class FunctionDeclarationNode extends LamaNode {
     private final TruffleString name;
     private final FrameDescriptor frameDescriptor;
-    private final int parametersCount;
-
     @SuppressWarnings("FieldMayBeFinal")
     @Child
     private LamaNode funcBody;
 
-    public FunctionDeclarationNode(TruffleString name, FrameDescriptor frameDescriptor, int parametersCount, LamaNode funcBody) {
+    public FunctionDeclarationNode(TruffleString name, FrameDescriptor frameDescriptor, LamaNode funcBody) {
         this.name = name;
         this.frameDescriptor = frameDescriptor;
-        this.parametersCount = parametersCount;
         this.funcBody = funcBody;
     }
 
     @ExplodeLoop
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // TODO: add to functions in language scope, add new functions scope
+        var root = new FunctionRootNode(currentTruffleLanguage(), this.funcBody, this.frameDescriptor);
+        var obj = new FunctionObject(root.getCallTarget());
+        currentLanguageContext().globalScope.newVar(name, obj);
         return LamaNull.INSTANCE;
     }
 }

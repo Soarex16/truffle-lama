@@ -3,12 +3,17 @@ package com.soarex.truffle.lama.parser;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.strings.TruffleString;
+import com.soarex.truffle.lama.Utils;
 
 import java.util.*;
 
 public final class ParserState {
     private final Deque<Map<TruffleString, FrameMember>> scopes = new ArrayDeque<>();
-    private FrameDescriptor.Builder frameBuilder;
+    FrameDescriptor.Builder frameBuilder = null;
+
+    {
+        enterScope();
+    }
 
     public void enterScope() {
         scopes.push(new HashMap<>());
@@ -24,12 +29,18 @@ public final class ParserState {
     }
 
     public FrameDescriptor leaveFunction() {
-        FrameDescriptor frame = frameBuilder.build();
+        assert frameBuilder != null;
+        var frame = frameBuilder.build();
         frameBuilder = null;
         return frame;
     }
 
-    public FrameMember.LocalVariable declareVariable(TruffleString name) {
+    public FrameMember.Var declareVariable(TruffleString name) {
+        if (frameBuilder == null) {
+            var variable = new FrameMember.GlobalVariable(Utils.asTruffleString(name.toString() + "$" + scopes.size()));
+            Objects.requireNonNull(scopes.peek()).put(name, variable);
+            return variable;
+        }
         int slotId = this.frameBuilder.addSlot(FrameSlotKind.Illegal, name, null);
         var variable = new FrameMember.LocalVariable(slotId);
         Objects.requireNonNull(scopes.peek()).put(name, variable);
@@ -50,7 +61,6 @@ public final class ParserState {
                 return member;
             }
         }
-
         return null;
     }
 }

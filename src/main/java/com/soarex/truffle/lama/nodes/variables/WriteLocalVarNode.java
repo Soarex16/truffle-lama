@@ -13,7 +13,7 @@ import com.soarex.truffle.lama.nodes.LamaNode;
 @NodeInfo(shortName = "write(local)")
 @NodeChild("value")
 @NodeField(name = "slot", type = int.class)
-public abstract class WriteLocalVariableNode extends LamaNode {
+public abstract class WriteLocalVarNode extends LamaNode {
     protected abstract int getSlot();
 
     @Specialization(guards = "isBooleanOrIllegal(frame)")
