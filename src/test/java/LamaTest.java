@@ -4,7 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LamaTest {
     private Context context;
@@ -200,6 +200,24 @@ public class LamaTest {
                         a + b
                         """);
         assertEquals(5, result1.asInt());
+    }
+
+    @Test
+    void elseIf() {
+        var result1 = context.eval("lama",
+                """
+                        var a = 2, b = 2;
+                        if a > b then
+                            42
+                        elif a < b then
+                            43
+                        elif a == b then
+                            a + b
+                        else
+                            44
+                        fi
+                        """);
+        assertEquals(4, result1.asInt());
     }
 
     @Test
