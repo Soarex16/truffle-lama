@@ -5,10 +5,11 @@ import com.oracle.truffle.api.dsl.TypeSystem;
 
 @TypeSystem({boolean.class, int.class})
 public class LamaTypeSystem {
-//    @ImplicitCast
-//    public static boolean castIntToBoolean(int value) {
-//        return value != 0;
-//    }
+
+    @ImplicitCast
+    public static boolean castIntToBoolean(int value) {
+        return value != 0;
+    }
 
     @ImplicitCast
     public static int castBooleanToInt(boolean value) {
