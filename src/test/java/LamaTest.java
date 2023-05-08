@@ -268,4 +268,79 @@ public class LamaTest {
                         """);
         assertEquals(13, result1.asInt());
     }
+
+    @Test
+    void callBuiltin() {
+        var result1 = context.eval("lama", "abs(-5)");
+        assertEquals(5, result1.asInt());
+
+        var result2 = context.eval("lama", "if 0 == 42 then 1 else abs fi (-5)");
+        assertEquals(5, result2.asInt());
+    }
+
+    @Test
+    void simpleCustomFunction() {
+        var result = context.eval("lama",
+                """
+                        var c = 1;
+                        fun f(a, b) {
+                            a + b
+                        }
+                        fun g(x) {
+                            x + 1
+                        }
+                        c + g (f (3, 4))
+                        """);
+        assertEquals(9, result.asInt());
+    }
+
+    @Test
+    void complexFunction() {
+        var result = context.eval("lama",
+                """
+                        fun fib(n) {
+                            if n <= 1 then 0 else
+                                var a = 0, b = 1;
+                                var i = 2;
+                                while i < n do
+                                    var c = a + b;
+                                    a := b;
+                                    b := c;
+                                    i := i + 1
+                                od;
+                                b
+                            fi
+                        }
+                        fib (8)
+                        """);
+        assertEquals(13, result.asInt());
+    }
+
+    @Test
+    void functionAccessGlobals() {
+        var result = context.eval("lama",
+                """
+                        var a = 1;
+                        fun f(b) {
+                            a + b
+                        }
+                        f (41)
+                        """);
+        assertEquals(42, result.asInt());
+    }
+
+    @Test
+    void callFunctionFromFunction() {
+        var result = context.eval("lama",
+                """
+                        fun id(a) {
+                            a
+                        }
+                        fun f(a) {
+                            1 + id (a)
+                        }
+                        f (41)
+                        """);
+        assertEquals(42, result.asInt());
+    }
 }

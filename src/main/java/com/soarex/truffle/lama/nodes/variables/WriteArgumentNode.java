@@ -5,7 +5,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.soarex.truffle.lama.nodes.LamaNode;
 
 @NodeInfo(shortName = "write(arg)")
-public class WriteArgumentNode extends LamaNode {
+public final class WriteArgumentNode extends LamaNode {
     private final int index;
 
     @SuppressWarnings("FieldMayBeFinal")

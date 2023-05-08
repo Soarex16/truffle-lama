@@ -72,9 +72,9 @@ comparisonExpression
     ;
 
 postfixExpression
-    : primary                                                                                       #emptySuffix
-    | base=postfixExpression OPEN_PARENS (args=expression (COMMA args=expression)*)? CLOSE_PARENS   #indexExpression
-    | base=postfixExpression OPEN_BRACKET index=expression CLOSE_BRACKET                            #callExpression
+    : primary                                                                                         #emptySuffix
+    | base=postfixExpression OPEN_PARENS (args+=expression (COMMA args+=expression)*)? CLOSE_PARENS   #callExpression
+    | base=postfixExpression OPEN_BRACKET index=expression CLOSE_BRACKET                              #indexExpression
     ;
 
 primary

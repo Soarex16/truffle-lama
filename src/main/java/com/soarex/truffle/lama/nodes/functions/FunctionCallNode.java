@@ -8,22 +8,24 @@ import com.soarex.truffle.lama.nodes.LamaNode;
 
 import java.util.List;
 
+@SuppressWarnings("FieldMayBeFinal")
 @NodeInfo(shortName = "call")
 public class FunctionCallNode extends LamaNode {
     @Children
     private final LamaNode[] argumentNodes;
-    @SuppressWarnings("FieldMayBeFinal")
     @Child
     private LamaNode functionNode;
+    @Child
+    private FunctionDispatchNode dispatchNode;
 
-//    @SuppressWarnings("FieldMayBeFinal")
-//    @Child
-//    private LamaNode functionNode;
+    public FunctionCallNode(LamaNode functionNode, List<? extends LamaNode> argumentNodes) {
+        this(functionNode, argumentNodes.toArray(new LamaNode[0]));
+    }
 
-
-    public FunctionCallNode(LamaNode functionNode, List<LamaNode> argumentNodes) {
+    public FunctionCallNode(LamaNode functionNode, LamaNode... argumentNodes) {
         this.functionNode = functionNode;
-        this.argumentNodes = argumentNodes.toArray(new LamaNode[0]);
+        this.argumentNodes = argumentNodes;
+        this.dispatchNode = FunctionDispatchNodeGen.create();
     }
 
     @ExplodeLoop
@@ -34,9 +36,7 @@ public class FunctionCallNode extends LamaNode {
         for (int i = 0; i < argumentNodes.length; i++) {
             argumentValues[i] = argumentNodes[i].executeGeneric(frame);
         }
-
-        Object function = functionNode.executeGeneric(frame);
-
-        return null;
+        var func = this.functionNode.executeGeneric(frame);
+        return dispatchNode.executeDispatch(func, argumentValues);
     }
 }
